@@ -169,7 +169,7 @@ class DeviceGroup extends IPSModule {
 	protected function GetSwitchModeDevices() {
 		
 		$switchModeDevicesJson = $this->ReadPropertyString("SwitchModeDevices");
-		$switchModeDevices = json_decode($switchModeDevicesJson);
+		$switchModeDevices = json_decode($switchModeDevicesJson, true);
 		
 		if (is_array($switchModeDevices)) {
 			
