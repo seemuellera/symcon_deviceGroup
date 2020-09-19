@@ -167,7 +167,14 @@ class DeviceGroup extends IPSModule {
 		switch ($Ident) {
 		
 			case "Status":
-				SetValue($this->GetIDForIdent($Ident), $Value);
+				if (GetValue($this->GetIDForIdent("Status"))) {
+					
+					$this->SwitchOff();
+				} 
+				else {
+					
+					$this->SwitchOn();
+				}
 				break;
 			default:
 				throw new Exception("Invalid Ident");
@@ -243,5 +250,44 @@ class DeviceGroup extends IPSModule {
 				$this->LogMessage("Switch mode has an invalid Aggregation type","ERROR");
 		}
 	}
+	
+	public function SwitchOn() {
+		
+		if (! $this->SwitchMode) {
+			
+			$this->LogMessage("Device cannot be switched on. Switch mode is inactive");
+			return;
+		}
+		
+		$allSwitchModeDevices $this->GetSwitchModeDevices();
+		
+		foreach($allSwitchModeDevices as $currentDevice) {
+			
+			if (! GetValue($currentDevice['VariableId']) ) {
+				
+				RequestAction($currentDevice['VariableId'], true);
+				$this->LogMessage("Switching on " . $currentDevice['Name'], "DEBUG");
+			}
+		}
+	}
 
+	public function SwitchOff() {
+		
+		if (! $this->SwitchMode) {
+			
+			$this->LogMessage("Device cannot be switched on. Switch mode is inactive");
+			return;
+		}
+		
+		$allSwitchModeDevices $this->GetSwitchModeDevices();
+		
+		foreach($allSwitchModeDevices as $currentDevice) {
+			
+			if (GetValue($currentDevice['VariableId']) ) {
+				
+				RequestAction($currentDevice['VariableId'], false);
+				$this->LogMessage("Switching off " . $currentDevice['Name'], "DEBUG");
+			}
+		}
+	}
 }
