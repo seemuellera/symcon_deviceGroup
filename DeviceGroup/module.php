@@ -138,6 +138,13 @@ class DeviceGroup extends IPSModule {
 										"width" => "auto",
 										"edit" => Array("type" => "ValidationTextBox"),
 										"add" => "Display Name"
+									),
+									Array(
+										"caption" => "Switching Order",
+										"name" => "Order",
+										"width" => "auto",
+										"edit" => Array("type" => "NumberSpinner"),
+										"add" => 1
 									)
 								)
 							);
@@ -210,6 +217,9 @@ class DeviceGroup extends IPSModule {
 		if (is_array($switchModeDevices)) {
 			
 			if (count($switchModeDevices) != 0) {
+				
+				$order = array_column($switchModeDevices, 'Order');
+				array_multisort($order, SORT_ASC, switchModeDevices);
 				
 				return $switchModeDevices;
 			}
