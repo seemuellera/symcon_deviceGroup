@@ -229,13 +229,26 @@ class DeviceGroup extends IPSModule {
 		$allDevices = $this->GetSwitchModeDevices();
 		
 		$devicesOn = 0;
+		$devicesDisplay = "<ul>";
 		
 		foreach ($allDevices as $currentDevice) {
 			
 			if (GetValue($currentDevice['VariableId']) ) {
 				
 				$devicesOn++;
+				$devicesDisplay .= "<li>" . $currentDevice['Name'] . "</li>";
 			}
+		}
+		
+		$devicesDisplay .= "</ul>";
+		
+		if ($this->ReadPropertyBoolean("SwitchModeDisplay")) {
+			
+			SetValue($this->GetIDForIdent("DevicesSwitchedOn"), $devicesDisplay);
+		}
+		else {
+			
+			SetValue($this->GetIDForIdent("DevicesSwitchedOn"), "");
 		}
 		
 		switch ($this->ReadPropertyString("SwitchModeAggregation")) {
