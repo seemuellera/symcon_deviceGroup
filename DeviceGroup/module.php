@@ -135,7 +135,7 @@ class DeviceGroup extends IPSModule {
 									Array(
 										"caption" => "Name",
 										"name" => "Name",
-										"width" => "auto",
+										"width" => "250px",
 										"edit" => Array("type" => "ValidationTextBox"),
 										"add" => "Display Name"
 									),
