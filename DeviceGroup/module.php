@@ -25,6 +25,7 @@ class DeviceGroup extends IPSModule {
 		
 		$this->RegisterPropertyBoolean("SwitchMode",false);
 		$this->RegisterPropertyString("SwitchModeAggregation","ALLOFF");
+		$this->RegisterPropertyBoolean("SwitchModeDisplay",false);
 		$this->RegisterPropertyString("SwitchModeDevices","");
 
 		// Timer
@@ -105,6 +106,7 @@ class DeviceGroup extends IPSModule {
 									)
 								)
 							);
+		$form['elements'][] = Array("type" => "CheckBox", "name" => "SwitchModeDisplay", "caption" => "Display Switched on devices in Web Frontend");
 		$form['elements'][] = Array(
 								"type" => "List", 
 								"name" => "SwitchModeDevices", 
@@ -133,6 +135,8 @@ class DeviceGroup extends IPSModule {
 		
 		// Add the buttons for the test center
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Refresh", "onClick" => 'DEVGROUP_RefreshInformation($id);');
+		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch On", "onClick" => 'DEVGROUP_SwitchOn($id);');
+		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch Off", "onClick" => 'DEVGROUP_SwitchOff($id);');
 
 		// Return the completed form
 		return json_encode($form);
