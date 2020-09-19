@@ -90,7 +90,7 @@ class DeviceGroup extends IPSModule {
 		// Register Variables if applicable
 		if ($this->ReadPropertyBoolean("DimMode") ) {
 			
-			$this->RegisterVariableBoolean("Intensity","Intensity","~Intensity.100");
+			$this->RegisterVariableInteger("Intensity","Intensity","~Intensity.100");
 			$this->EnableAction("Intensity");
 			
 			// Register the Message Sinks
