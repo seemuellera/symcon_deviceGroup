@@ -300,6 +300,9 @@ class DeviceGroup extends IPSModule {
 					$this->SwitchOn();
 				}
 				break;
+			case "Intensity":
+				$this->DimSet($Value);
+				break;
 			default:
 				throw new Exception("Invalid Ident");
 		}
