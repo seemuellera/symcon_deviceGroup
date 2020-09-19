@@ -46,16 +46,8 @@ class DeviceGroup extends IPSModule {
 		// Register Variables if applicable
 		if ($this->ReadPropertyBoolean("SwitchMode") ) {
 			
-			if (! $this->GetIDForIdent("Status") ) {
-				
-				$this->LogMessage("SwitchMode is active and Status Variable does not exist. A new one will be registered","DEBUG");
-				$this->RegisterVariableBoolean("Status","Status","~Switch");
-				$this->EnableAction("Status");
-			}
-			else {
-				
-				$this->LogMessage("SwitchMode is active and Status Variable already exists","DEBUG");
-			}
+			$this->RegisterVariableBoolean("Status","Status","~Switch");
+			$this->EnableAction("Status");
 		}
 		else {
 			
