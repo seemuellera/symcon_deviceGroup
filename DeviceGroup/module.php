@@ -519,7 +519,7 @@ class DeviceGroup extends IPSModule {
 		}
 	}
 	
-	public function DimSet($dimLevel) {
+	public function DimSet(int $dimLevel) {
 		
 		if (! $this->ReadPropertyBoolean("DimMode") ) {
 			
