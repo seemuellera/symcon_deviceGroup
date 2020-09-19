@@ -186,7 +186,43 @@ class DeviceGroup extends IPSModule {
 	
 	protected function RefreshSwitchModeDevices() {
 		
+		$allDevices = $this->GetSwitchModeDevices();
 		
+		$devicesOn = 0;
+		
+		foreach ($allDevices as $currentDevice) {
+			
+			if (GetValue($currentDevice['VariableId']) ) {
+				
+				$devicesOn++;
+			}
+		}
+		
+		switch ($this->ReadPropertyString("SwitchModeAggregation")) {
+			
+			case "ALLOFF":
+				if ($devicesOn > 0) {
+					
+					SetValue($this->GetIDForIdent("Status"), true);
+				}
+				else {
+					
+					SetValue($this->GetIDForIdent("Status"), false);
+				}
+				break;
+			case "ALLON":
+				if ($devicesOn == count($allDevices)) {
+					
+					SetValue($this->GetIDForIdent("Status"), true);
+				}
+				else {
+					
+					SetValue($this->GetIDForIdent("Status"), false);
+				}
+				break;
+			default:
+				$this->LogMessage("Switch mode has an invalid Aggregation type","ERROR");
+		}
 	}
 
 }
