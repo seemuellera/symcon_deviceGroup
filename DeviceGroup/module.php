@@ -117,7 +117,7 @@ class DeviceGroup extends IPSModule {
 										"name" => "Name",
 										"width" => "auto",
 										"edit" => Array("type" => "ValidationTextBox"),
-										"add" => true
+										"add" => "Display Name"
 									)
 								)
 							);
@@ -146,6 +146,7 @@ class DeviceGroup extends IPSModule {
 	public function RefreshInformation() {
 
 		$this->LogMessage("Refresh in Progress", "DEBUG");
+		print_r($this->GetSwitchModeDevices());
 	}
 
 	public function RequestAction($Ident, $Value) {
@@ -159,6 +160,33 @@ class DeviceGroup extends IPSModule {
 			default:
 				throw new Exception("Invalid Ident");
 		}
+	}
+	
+	protected function GetSwitchModeDevices() {
+		
+		$switchModeDevicesJson = $this->ReadPropertyString("SwitchModeDevices");
+		$switchModeDevices = json_decode($switchModeDevicesJson);
+		
+		if (is_array($switchModeDevices)) {
+			
+			if (count($switchModeDevices) != 0) {
+				
+				return $switchModeDevices;
+			}
+			else {
+				
+				return false;
+			}
+		}
+		else {
+			
+			return false;
+		}
+	}
+	
+	protected function RefreshSwitchModeDevices() {
+		
+		
 	}
 
 }
