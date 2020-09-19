@@ -534,6 +534,7 @@ class DeviceGroup extends IPSModule {
 		
 		foreach($allDimModeDevices as $currentDevice) {
 			
+			$varDetails = IPS_GetVariable($currentDevice['VariableId']);
 			if ( ($varDetails['VariableProfile'] == "~Intensity.255") || ($varDetails['VariableProfile'] == "Intensity.Hue") || ($varDetails['VariableCustomProfile'] == "~Intensity.255") || ($varDetails['VariableCustomProfile'] == "Intensity.Hue") ) {
 				
 				$dimLevel = round($dimLevel * 2.54);
