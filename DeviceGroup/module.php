@@ -58,9 +58,17 @@ class DeviceGroup extends IPSModule {
 			}
 		}
 		else {
+			
+			if (IPS_GetObjectIDByIdent("Status", $this->InstanceID) ) {
 	
-			$this->DisableAction("Status");
-			$this->UnregisterVariable("Status");
+				$this->LogMessage("SwitchMode is inactive and Status Variable does exist. It will be unregistered","DEBUG");
+				$this->DisableAction("Status");
+				$this->UnregisterVariable("Status");
+			}
+			else {
+				
+				$this->LogMessage("SwitchMode is inactive and Status Variable does not exist.","DEBUG");
+			}
 		}
 			
 		// Diese Zeile nicht löschen
