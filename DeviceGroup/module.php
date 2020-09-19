@@ -219,7 +219,7 @@ class DeviceGroup extends IPSModule {
 			if (count($switchModeDevices) != 0) {
 				
 				$order = array_column($switchModeDevices, 'Order');
-				array_multisort($order, SORT_ASC, switchModeDevices);
+				array_multisort($order, SORT_ASC, $switchModeDevices);
 				
 				return $switchModeDevices;
 			}
