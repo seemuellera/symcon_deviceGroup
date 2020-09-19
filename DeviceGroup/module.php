@@ -44,7 +44,7 @@ class DeviceGroup extends IPSModule {
 		$this->SetTimerInterval("RefreshInformation", $newInterval);
 		
 		// Register Variables if applicable
-		if ($this->ReadPropertyBoolean("SwitchMOde") {
+		if ($this->ReadPropertyBoolean("SwitchMOde") ) {
 			
 			if (! $this->GetIDForIdent("Status") ) {
 				
