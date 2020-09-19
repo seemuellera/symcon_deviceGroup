@@ -251,7 +251,7 @@ class DeviceGroup extends IPSModule {
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Refresh", "onClick" => 'DEVGROUP_RefreshInformation($id);');
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch On", "onClick" => 'DEVGROUP_SwitchOn($id);');
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch Off", "onClick" => 'DEVGROUP_SwitchOff($id);');
-		$form['actions'][] = Array("type" => "HorizontalSlider", "name" => "IntensityTestSlider", "minimum" => 0, "maximum" => 100, "onChange" => 'DEVGROUP_DimSet($id,$TestIntensity);');
+		$form['actions'][] = Array("type" => "HorizontalSlider", "name" => "IntensityTestSlider", "minimum" => 0, "maximum" => 100, "onChange" => 'DEVGROUP_DimSet($id,$IntensityTestSlider);');
 
 		// Return the completed form
 		return json_encode($form);
@@ -488,7 +488,10 @@ class DeviceGroup extends IPSModule {
 			
 			$dimSum += $currentDimValue;
 			
-			$devicesDisplay .= "<li>" . $currentDimValue . "% - " . $currentDevice['Name'] . "</li>";
+			if ($currentDimValue > 0) {
+				
+				$devicesDisplay .= "<li>" . $currentDimValue . "% - " . $currentDevice['Name'] . "</li>";
+			}
 		}
 		
 		$devicesDisplay .= "</ul>";
