@@ -59,6 +59,17 @@ class DeviceGroup extends IPSModule {
 		}
 		else {
 			
+			try {
+				
+				$this->GetIDForIdent("Status");
+			}
+			catch (Exception $e) {
+				
+				$this->LogMessage("Ident not found","DEBUG");
+				$this->LogMessage($e,"DEBUG");
+			}
+			
+			/*
 			if ($this->GetIDForIdent("Status") ) {
 				
 				$this->LogMessage("SwitchMode is inactive and Status Variable does exist. It will be deleted","DEBUG");
@@ -69,6 +80,7 @@ class DeviceGroup extends IPSModule {
 				
 				$this->LogMessage("SwitchMode is inactive and Status Variable is already deleted","DEBUG");
 			}
+			*/
 		}
 			
 		// Diese Zeile nicht löschen
