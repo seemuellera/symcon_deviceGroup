@@ -259,7 +259,7 @@ class DeviceGroup extends IPSModule {
 			return;
 		}
 		
-		$allSwitchModeDevices $this->GetSwitchModeDevices();
+		$allSwitchModeDevices = $this->GetSwitchModeDevices();
 		
 		foreach($allSwitchModeDevices as $currentDevice) {
 			
@@ -279,7 +279,7 @@ class DeviceGroup extends IPSModule {
 			return;
 		}
 		
-		$allSwitchModeDevices $this->GetSwitchModeDevices();
+		$allSwitchModeDevices = $this->GetSwitchModeDevices();
 		
 		foreach($allSwitchModeDevices as $currentDevice) {
 			
