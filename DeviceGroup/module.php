@@ -146,7 +146,11 @@ class DeviceGroup extends IPSModule {
 	public function RefreshInformation() {
 
 		$this->LogMessage("Refresh in Progress", "DEBUG");
-		print_r($this->GetSwitchModeDevices());
+		
+		if ($this->ReadPropertyBoolean("SwitchMode")) {
+			
+			$this->RefreshSwitchModeDevices();
+		}
 	}
 
 	public function RequestAction($Ident, $Value) {
