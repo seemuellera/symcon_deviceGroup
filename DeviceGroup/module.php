@@ -469,7 +469,7 @@ class DeviceGroup extends IPSModule {
 		foreach ($allDevices as $currentDevice) {
 			
 			$varDetails = IPS_GetVariable($currentDevice['VariableId']);
-			$currentDimValue = GetValue($currentDevice['VariableId');
+			$currentDimValue = GetValue($currentDevice['VariableId']);
 			
 			if ( ($varDetails['VariableProfile'] == "~Intensity.255") || ($varDetails['VariableProfile'] == "Intensity.Hue") || ($varDetails['VariableCustomProfile'] == "~Intensity.255") || ($varDetails['VariableCustomProfile'] == "Intensity.Hue") ) {
 				
