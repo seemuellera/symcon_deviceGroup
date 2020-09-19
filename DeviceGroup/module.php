@@ -253,7 +253,7 @@ class DeviceGroup extends IPSModule {
 	
 	public function SwitchOn() {
 		
-		if (! $this->SwitchMode) {
+		if (! $this->ReadPropertyBoolean("SwitchMode") ) {
 			
 			$this->LogMessage("Device cannot be switched on. Switch mode is inactive");
 			return;
@@ -273,7 +273,7 @@ class DeviceGroup extends IPSModule {
 
 	public function SwitchOff() {
 		
-		if (! $this->SwitchMode) {
+		if (! $this->ReadPropertyBoolean("SwitchMode") ) {
 			
 			$this->LogMessage("Device cannot be switched on. Switch mode is inactive");
 			return;
