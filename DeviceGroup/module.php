@@ -54,7 +54,7 @@ class DeviceGroup extends IPSModule {
 			
 			foreach ($allSwitchModeDevices as $currentDevice) {
 				
-				$this->RegisterMessage($currentDevice['VariableId'], VM_CHANGE);
+				$this->RegisterMessage($currentDevice['VariableId'], VM_UPDATE);
 			}
 		}
 		else {
