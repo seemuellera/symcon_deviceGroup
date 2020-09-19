@@ -48,6 +48,14 @@ class DeviceGroup extends IPSModule {
 			
 			$this->RegisterVariableBoolean("Status","Status","~Switch");
 			$this->EnableAction("Status");
+			
+			// Register the Message Sinks
+			$allSwitchModeDevices = $this->GetSwitchModeDevices();
+			
+			foreach ($allSwitchModeDevices as $currentDevice) {
+				
+				$this->RegisterMessage($currentDevice['VariableId'], VM_CHANGE);
+			}
 		}
 		else {
 			
@@ -164,6 +172,13 @@ class DeviceGroup extends IPSModule {
 			default:
 				throw new Exception("Invalid Ident");
 		}
+	}
+	
+	public function MessageSink($TimeStamp, $SenderId, $Message, $Data) {
+	
+		// $this->LogMessage("$TimeStamp - $SenderId - $Message", "DEBUG");
+		
+		$this->RefreshInformation();
 	}
 	
 	protected function GetSwitchModeDevices() {
