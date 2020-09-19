@@ -57,10 +57,15 @@ class DeviceGroup extends IPSModule {
 				
 				$this->RegisterMessage($currentDevice['VariableId'], VM_UPDATE);
 			}
+			
+			if ($this->ReadPropertyBoolean("SwitchModeDisplay")) {
+				
+				$this->RegisterVariableString("DevicesSwitchedOn","Devices switched on","~HTMLBox");
+			}
 		}
 		else {
 			
-			if (IPS_GetObjectIDByIdent("Status", $this->InstanceID) ) {
+			if (@$this->GetIDForIdent("Status")) {
 	
 				$this->LogMessage("SwitchMode is inactive and Status Variable does exist. It will be unregistered","DEBUG");
 				$this->DisableAction("Status");
@@ -69,6 +74,11 @@ class DeviceGroup extends IPSModule {
 			else {
 				
 				$this->LogMessage("SwitchMode is inactive and Status Variable does not exist.","DEBUG");
+			}
+			
+			if (@$this->GetIDForIdent("DevicesSwitchedOn")) {
+				
+				$this->UnregisterVariable("DevicesSwitchedOn");
 			}
 		}
 			
