@@ -28,6 +28,11 @@ class DeviceGroup extends IPSModule {
 		$this->RegisterPropertyBoolean("SwitchModeDisplay",false);
 		$this->RegisterPropertyString("SwitchModeDevices","");
 
+		$this->RegisterPropertyBoolean("DimMode",false);
+		$this->RegisterPropertyString("DimModeAggregation","MAX");
+		$this->RegisterPropertyBoolean("DimModeDisplay",false);
+		$this->RegisterPropertyString("DimModeDevices","");
+
 		// Timer
 		$this->RegisterTimer("RefreshInformation", 0 , 'DEVGROUP_RefreshInformation($_IPS[\'TARGET\']);');
     }
@@ -79,6 +84,44 @@ class DeviceGroup extends IPSModule {
 			if (@$this->GetIDForIdent("DevicesSwitchedOn")) {
 				
 				$this->UnregisterVariable("DevicesSwitchedOn");
+			}
+		}
+		
+		// Register Variables if applicable
+		if ($this->ReadPropertyBoolean("DimMode") ) {
+			
+			$this->RegisterVariableBoolean("Intensity","Intensity","~Intensity.100");
+			$this->EnableAction("Intensity");
+			
+			// Register the Message Sinks
+			$allDimModeDevices = $this->GetDimModeDevices();
+			
+			foreach ($allDimModeDevices as $currentDevice) {
+				
+				$this->RegisterMessage($currentDevice['VariableId'], VM_UPDATE);
+			}
+			
+			if ($this->ReadPropertyBoolean("DimModeDisplay")) {
+				
+				$this->RegisterVariableString("DevicesDimmed","Devices dimmed","~HTMLBox");
+			}
+		}
+		else {
+			
+			if (@$this->GetIDForIdent("Intensity")) {
+	
+				$this->LogMessage("DimMode is inactive and Intensity Variable does exist. It will be unregistered","DEBUG");
+				$this->DisableAction("Intensity");
+				$this->UnregisterVariable("Intensity");
+			}
+			else {
+				
+				$this->LogMessage("Intensity is inactive and Status Variable does not exist.","DEBUG");
+			}
+			
+			if (@$this->GetIDForIdent("DevicesDimmed")) {
+				
+				$this->UnregisterVariable("DevicesDimmed");
 			}
 		}
 			
@@ -148,12 +191,67 @@ class DeviceGroup extends IPSModule {
 									)
 								)
 							);
+							
+		$form['elements'][] = Array("type" => "Label", "name" => "DimModeHeading", "caption" => "Dimming mode configuration");
+		$form['elements'][] = Array("type" => "CheckBox", "name" => "DimMode", "caption" => "Enable Dimming Mode");
+		$form['elements'][] = Array(
+								"type" => "Select", 
+								"name" => "DimModeAggregation", 
+								"caption" => "Select Aggregation Mode",
+								"options" => Array(
+									Array(
+										"caption" => "MIN - The lowest intensity in the group is used",
+										"value" => "MIN"
+									),
+									Array(
+										"caption" => "MAX - The highest intensity in the group is used",
+										"value" => "MAX"
+									),
+									Array(
+										"caption" => "AVG - An average intensity will be calculated from fall devices",
+										"value" => "AVG"
+									)
+								)
+							);
+		$form['elements'][] = Array("type" => "CheckBox", "name" => "DimModeDisplay", "caption" => "Display dimmed devices in Web Frontend");
+		$form['elements'][] = Array(
+								"type" => "List", 
+								"name" => "DimModeDevices", 
+								"caption" => "Device Status variables",
+								"rowCount" => 5,
+								"add" => true,
+								"delete" => true,
+								"columns" => Array(
+									Array(
+										"caption" => "Variable Id",
+										"name" => "VariableId",
+										"width" => "350px",
+										"edit" => Array("type" => "SelectVariable"),
+										"add" => 0
+									),
+									Array(
+										"caption" => "Name",
+										"name" => "Name",
+										"width" => "250px",
+										"edit" => Array("type" => "ValidationTextBox"),
+										"add" => "Display Name"
+									),
+									Array(
+										"caption" => "Dimming Order",
+										"name" => "Order",
+										"width" => "auto",
+										"edit" => Array("type" => "NumberSpinner"),
+										"add" => 1
+									)
+								)
+							);
 		
 		
 		// Add the buttons for the test center
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Refresh", "onClick" => 'DEVGROUP_RefreshInformation($id);');
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch On", "onClick" => 'DEVGROUP_SwitchOn($id);');
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch Off", "onClick" => 'DEVGROUP_SwitchOff($id);');
+		$form['actions'][] = Array("type" => "HorizontalSlider", "name" => "IntensityTestSlider", "minimum" => 0, "maximum" => 100, "onChange" => 'DEVGROUP_DimSet($id,$TestIntensity);');
 
 		// Return the completed form
 		return json_encode($form);
@@ -179,6 +277,11 @@ class DeviceGroup extends IPSModule {
 		if ($this->ReadPropertyBoolean("SwitchMode")) {
 			
 			$this->RefreshSwitchModeDevices();
+		}
+		
+		if ($this->ReadPropertyBoolean("DimMode")) {
+			
+			$this->RefreshDimModeDevices();
 		}
 	}
 
@@ -325,6 +428,115 @@ class DeviceGroup extends IPSModule {
 				RequestAction($currentDevice['VariableId'], false);
 				$this->LogMessage("Switching off " . $currentDevice['Name'], "DEBUG");
 			}
+		}
+	}
+	
+	protected function GetDimModeDevices() {
+		
+		$dimModeDevicesJson = $this->ReadPropertyString("DimModeDevices");
+		$dimModeDevices = json_decode($dimModeDevicesJson, true);
+		
+		if (is_array($dimModeDevices)) {
+			
+			if (count($dimModeDevices) != 0) {
+				
+				$order = array_column($dimModeDevices, 'Order');
+				array_multisort($order, SORT_ASC, $dimModeDevices);
+				
+				return $dimModeDevices;
+			}
+			else {
+				
+				return false;
+			}
+		}
+		else {
+			
+			return false;
+		}
+	}
+	
+	protected function RefreshDimModeDevices() {
+		
+		$allDevices = $this->GetDimModeDevices();
+		
+		$dimMin = 100;
+		$dimMax = 0;
+		$dimSum = 0;
+		
+		$devicesDisplay = "<ul>";
+		
+		foreach ($allDevices as $currentDevice) {
+			
+			$varDetails = IPS_GetVariable($currentDevice['VariableId']);
+			$currentDimValue = GetValue($currentDevice['VariableId');
+			
+			if ( ($varDetails['VariableProfile'] == "~Intensity.255") || ($varDetails['VariableProfile'] == "Intensity.Hue") || ($varDetails['VariableCustomProfile'] == "~Intensity.255") || ($varDetails['VariableCustomProfile'] == "Intensity.Hue") ) {
+				
+				$currentDimValue = round($currentDimValue / 2.54);
+			}
+			
+			if ($currentDimValue < $dimMin) {
+				
+				$dimMin = $currentDimValue;
+			}
+			
+			if ($currentDimValue > $dimMax) {
+				
+				$dimMax = $currentDimValue;
+			}
+			
+			$dimSum += $currentDimValue;
+			
+			$devicesDisplay .= "<li>" . $currentDimValue . "% - " . $currentDevice['Name'] . "</li>";
+		}
+		
+		$devicesDisplay .= "</ul>";
+		$dimAvg = round($dimSum / count($allDevices) );
+		
+		if ($this->ReadPropertyBoolean("DimModeDisplay")) {
+			
+			SetValue($this->GetIDForIdent("DevicesDimmed"), $devicesDisplay);
+		}
+		else {
+			
+			SetValue($this->GetIDForIdent("DevicesDimmed"), "");
+		}
+		
+		switch ($this->ReadPropertyString("DimModeAggregation")) {
+			
+			case "MIN":
+				SetValue($this->GetIDForIdent("Intensity"), $dimMin);
+				break;
+			case "MAX":
+				SetValue($this->GetIDForIdent("Intensity"), $dimMax);
+				break;
+			case "AVG":
+				SetValue($this->GetIDForIdent("Intensity"), $dimAvg);
+				break;
+			default:
+				$this->LogMessage("Dimming mode has an invalid Aggregation type","ERROR");
+		}
+	}
+	
+	public function DimSet($dimLevel) {
+		
+		if (! $this->ReadPropertyBoolean("DimMode") ) {
+			
+			$this->LogMessage("Device cannot be dimmed. Dimming mode is inactive");
+			return;
+		}
+		
+		$allDimModeDevices = $this->GetDimModeDevices();
+		
+		foreach($allDimModeDevices as $currentDevice) {
+			
+			if ( ($varDetails['VariableProfile'] == "~Intensity.255") || ($varDetails['VariableProfile'] == "Intensity.Hue") || ($varDetails['VariableCustomProfile'] == "~Intensity.255") || ($varDetails['VariableCustomProfile'] == "Intensity.Hue") ) {
+				
+				$dimLevel = round($dimLevel * 2.54);
+			}
+			
+			RequestAction($currentDevice['VariableId'], $dimLevel);
 		}
 	}
 }
