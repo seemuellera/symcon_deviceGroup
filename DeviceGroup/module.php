@@ -32,6 +32,11 @@ class DeviceGroup extends IPSModule {
 		$this->RegisterPropertyString("DimModeAggregation","MAX");
 		$this->RegisterPropertyBoolean("DimModeDisplay",false);
 		$this->RegisterPropertyString("DimModeDevices","");
+		
+		$this->RegisterPropertyBoolean("ColorMode",false);
+		$this->RegisterPropertyString("ColorModeAggregation","MAX");
+		$this->RegisterPropertyBoolean("ColorModeDisplay",false);
+		$this->RegisterPropertyString("ColorModeDevices","");
 
 		// Timer
 		$this->RegisterTimer("RefreshInformation", 0 , 'DEVGROUP_RefreshInformation($_IPS[\'TARGET\']);');
@@ -116,12 +121,50 @@ class DeviceGroup extends IPSModule {
 			}
 			else {
 				
-				$this->LogMessage("Intensity is inactive and Status Variable does not exist.","DEBUG");
+				$this->LogMessage("DimMode is inactive and Intensity Variable does not exist.","DEBUG");
 			}
 			
 			if (@$this->GetIDForIdent("DevicesDimmed")) {
 				
 				$this->UnregisterVariable("DevicesDimmed");
+			}
+		}
+		
+		// Register Variables if applicable
+		if ($this->ReadPropertyBoolean("ColorMode") ) {
+			
+			$this->RegisterVariableInteger("Color","Color","~HexColor");
+			$this->EnableAction("Color");
+			
+			// Register the Message Sinks
+			$allColorModeDevices = $this->GetColorModeDevices();
+			
+			foreach ($allColorModeDevices as $currentDevice) {
+				
+				$this->RegisterMessage($currentDevice['VariableId'], VM_UPDATE);
+			}
+			
+			if ($this->ReadPropertyBoolean("ColorModeDisplay")) {
+				
+				$this->RegisterVariableString("DevicesColorSet","Devices colors","~HTMLBox");
+			}
+		}
+		else {
+			
+			if (@$this->GetIDForIdent("Color")) {
+	
+				$this->LogMessage("ColorMode is inactive and Color Variable does exist. It will be unregistered","DEBUG");
+				$this->DisableAction("Color");
+				$this->UnregisterVariable("Color");
+			}
+			else {
+				
+				$this->LogMessage("ColorMode is inactive and Color Variable does not exist.","DEBUG");
+			}
+			
+			if (@$this->GetIDForIdent("DevicesColorSet")) {
+				
+				$this->UnregisterVariable("DevicesColorSet");
 			}
 		}
 			
@@ -208,7 +251,7 @@ class DeviceGroup extends IPSModule {
 										"value" => "MAX"
 									),
 									Array(
-										"caption" => "AVG - An average intensity will be calculated from fall devices",
+										"caption" => "AVG - An average intensity will be calculated from all devices",
 										"value" => "AVG"
 									)
 								)
@@ -217,7 +260,7 @@ class DeviceGroup extends IPSModule {
 		$form['elements'][] = Array(
 								"type" => "List", 
 								"name" => "DimModeDevices", 
-								"caption" => "Device Status variables",
+								"caption" => "Device Intensity variables",
 								"rowCount" => 5,
 								"add" => true,
 								"delete" => true,
@@ -246,12 +289,66 @@ class DeviceGroup extends IPSModule {
 								)
 							);
 		
+		$form['elements'][] = Array("type" => "Label", "name" => "ColorModeHeading", "caption" => "Color mode configuration");
+		$form['elements'][] = Array("type" => "CheckBox", "name" => "ColorMode", "caption" => "Enable Color Mode");
+		$form['elements'][] = Array(
+								"type" => "Select", 
+								"name" => "ColorModeAggregation", 
+								"caption" => "Select Aggregation Mode",
+								"options" => Array(
+									Array(
+										"caption" => "MIN - The lowest color in the group is used",
+										"value" => "MIN"
+									),
+									Array(
+										"caption" => "MAX - The highest color in the group is used",
+										"value" => "MAX"
+									),
+									Array(
+										"caption" => "AVG - An average color will be calculated from all devices",
+										"value" => "AVG"
+									)
+								)
+							);
+		$form['elements'][] = Array("type" => "CheckBox", "name" => "ColorModeDisplay", "caption" => "Display colors of devices in Web Frontend");
+		$form['elements'][] = Array(
+								"type" => "List", 
+								"name" => "ColorModeDevices", 
+								"caption" => "Device Color variables",
+								"rowCount" => 5,
+								"add" => true,
+								"delete" => true,
+								"columns" => Array(
+									Array(
+										"caption" => "Variable Id",
+										"name" => "VariableId",
+										"width" => "350px",
+										"edit" => Array("type" => "SelectVariable"),
+										"add" => 0
+									),
+									Array(
+										"caption" => "Name",
+										"name" => "Name",
+										"width" => "250px",
+										"edit" => Array("type" => "ValidationTextBox"),
+										"add" => "Display Name"
+									),
+									Array(
+										"caption" => "Color Change Order",
+										"name" => "Order",
+										"width" => "auto",
+										"edit" => Array("type" => "NumberSpinner"),
+										"add" => 1
+									)
+								)
+							);
 		
 		// Add the buttons for the test center
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Refresh", "onClick" => 'DEVGROUP_RefreshInformation($id);');
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch On", "onClick" => 'DEVGROUP_SwitchOn($id);');
 		$form['actions'][] = Array(	"type" => "Button", "label" => "Switch Off", "onClick" => 'DEVGROUP_SwitchOff($id);');
 		$form['actions'][] = Array("type" => "HorizontalSlider", "name" => "IntensityTestSlider", "minimum" => 0, "maximum" => 100, "onChange" => 'DEVGROUP_DimSet($id,$IntensityTestSlider);');
+		$form['actions'][] = Array("type" => "SelectColor", "name" => "ColorTestSelect", "onChange" => 'DEVGROUP_ColorSet($id,$ColorTestSelect);');
 
 		// Return the completed form
 		return json_encode($form);
@@ -283,6 +380,11 @@ class DeviceGroup extends IPSModule {
 			
 			$this->RefreshDimModeDevices();
 		}
+		
+		if ($this->ReadPropertyBoolean("ColorMode")) {
+			
+			$this->RefreshColorModeDevices();
+		}
 	}
 
 	public function RequestAction($Ident, $Value) {
@@ -302,6 +404,9 @@ class DeviceGroup extends IPSModule {
 				break;
 			case "Intensity":
 				$this->DimSet($Value);
+				break;
+			case "Color":
+				$this->ColorSet($Value);
 				break;
 			default:
 				throw new Exception("Invalid Ident");
@@ -536,6 +641,104 @@ class DeviceGroup extends IPSModule {
 			}
 			
 			RequestAction($currentDevice['VariableId'], $dimLevel);
+		}
+	}
+	
+	protected function GetColorModeDevices() {
+		
+		$colorModeDevicesJson = $this->ReadPropertyString("ColorModeDevices");
+		$colorModeDevices = json_decode($colorModeDevicesJson, true);
+		
+		if (is_array($colorModeDevices)) {
+			
+			if (count($colorModeDevices) != 0) {
+				
+				$order = array_column($colorModeDevices, 'Order');
+				array_multisort($order, SORT_ASC, $colorModeDevices);
+				
+				return $colorModeDevices;
+			}
+			else {
+				
+				return false;
+			}
+		}
+		else {
+			
+			return false;
+		}
+	}
+	
+	protected function RefreshColorModeDevices() {
+		
+		$allDevices = $this->GetColorModeDevices();
+		
+		$colorMin = 1000000;
+		$colorMax = 0;
+		$colorSum = 0;
+		
+		$devicesDisplay = "<ul>";
+		
+		foreach ($allDevices as $currentDevice) {
+			
+			$varDetails = IPS_GetVariable($currentDevice['VariableId']);
+			$currentColorValue = GetValue($currentDevice['VariableId']);
+			
+			if ($currentColorValue < $colorMin) {
+				
+				$colorMin = $currentColorValue;
+			}
+			
+			if ($currentColorValue > $colorMax) {
+				
+				$colorMax = $currentColorValue;
+			}
+			
+			$colorSum += $currentColorValue;
+			
+			if ($currentColorValue > 0) {
+				
+				$devicesDisplay .= "<li>" . $currentColorValue . " - " . $currentDevice['Name'] . "</li>";
+			}
+		}
+		
+		$devicesDisplay .= "</ul>";
+		$colorAvg = round($colorSum / count($allDevices) );
+		
+		if ($this->ReadPropertyBoolean("ColorModeDisplay")) {
+			
+			SetValue($this->GetIDForIdent("DevicesColorSet"), $devicesDisplay);
+		}
+		
+		switch ($this->ReadPropertyString("ColorModeAggregation")) {
+			
+			case "MIN":
+				SetValue($this->GetIDForIdent("Color"), $colorMin);
+				break;
+			case "MAX":
+				SetValue($this->GetIDForIdent("Color"), $colorMax);
+				break;
+			case "AVG":
+				SetValue($this->GetIDForIdent("Color"), $colorAvg);
+				break;
+			default:
+				$this->LogMessage("Color mode has an invalid Aggregation type","ERROR");
+		}
+	}
+	
+	public function ColorSet(int $color) {
+		
+		if (! $this->ReadPropertyBoolean("ColorMode") ) {
+			
+			$this->LogMessage("Device color cannot be set. Color mode is inactive");
+			return;
+		}
+		
+		$allColorModeDevices = $this->GetColorModeDevices();
+		
+		foreach($allColorModeDevices as $currentDevice) {
+			
+			RequestAction($currentDevice['VariableId'], $color);
 		}
 	}
 }
