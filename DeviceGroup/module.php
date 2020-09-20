@@ -362,10 +362,6 @@ class DeviceGroup extends IPSModule {
 			
 			SetValue($this->GetIDForIdent("DevicesSwitchedOn"), $devicesDisplay);
 		}
-		else {
-			
-			SetValue($this->GetIDForIdent("DevicesSwitchedOn"), "");
-		}
 		
 		switch ($this->ReadPropertyString("SwitchModeAggregation")) {
 			
@@ -503,10 +499,6 @@ class DeviceGroup extends IPSModule {
 		if ($this->ReadPropertyBoolean("DimModeDisplay")) {
 			
 			SetValue($this->GetIDForIdent("DevicesDimmed"), $devicesDisplay);
-		}
-		else {
-			
-			SetValue($this->GetIDForIdent("DevicesDimmed"), "");
 		}
 		
 		switch ($this->ReadPropertyString("DimModeAggregation")) {
