@@ -393,13 +393,13 @@ class DeviceGroup extends IPSModule {
 		switch ($Ident) {
 		
 			case "Status":
-				if (GetValue($this->GetIDForIdent("Status"))) {
-					
-					$this->SwitchOff();
-				} 
-				else {
+				if ($Value) {
 					
 					$this->SwitchOn();
+				}
+				else {
+					
+					$this->SwitchOff();
 				}
 				break;
 			case "Intensity":
