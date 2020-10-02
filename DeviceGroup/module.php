@@ -465,7 +465,7 @@ class DeviceGroup extends IPSModule {
 		
 		if ($this->ReadPropertyBoolean("SwitchModeDisplay")) {
 			
-			SetValue($this->GetIDForIdent("DevicesSwitchedOn"), $devicesDisplay);
+			$this->UpdateValue($this->GetIDForIdent("DevicesSwitchedOn"), $devicesDisplay);
 		}
 		
 		switch ($this->ReadPropertyString("SwitchModeAggregation")) {
@@ -473,21 +473,21 @@ class DeviceGroup extends IPSModule {
 			case "ALLOFF":
 				if ($devicesOn > 0) {
 					
-					SetValue($this->GetIDForIdent("Status"), true);
+					$this->UpdateValue($this->GetIDForIdent("Status"), true);
 				}
 				else {
 					
-					SetValue($this->GetIDForIdent("Status"), false);
+					$this->UpdateValue($this->GetIDForIdent("Status"), false);
 				}
 				break;
 			case "ALLON":
 				if ($devicesOn == count($allDevices)) {
 					
-					SetValue($this->GetIDForIdent("Status"), true);
+					$this->UpdateValue($this->GetIDForIdent("Status"), true);
 				}
 				else {
 					
-					SetValue($this->GetIDForIdent("Status"), false);
+					$this->UpdateValue($this->GetIDForIdent("Status"), false);
 				}
 				break;
 			default:
@@ -532,6 +532,14 @@ class DeviceGroup extends IPSModule {
 				RequestAction($currentDevice['VariableId'], false);
 				$this->LogMessage("Switching off " . $currentDevice['Name'], "DEBUG");
 			}
+		}
+	}
+	
+	protected function UpdateValue($variableId,$newValue) {
+		
+		if (GetValue($variableId) != $newValue) {
+			
+			SetValue($variableId, $newValue);
 		}
 	}
 	
@@ -603,19 +611,19 @@ class DeviceGroup extends IPSModule {
 		
 		if ($this->ReadPropertyBoolean("DimModeDisplay")) {
 			
-			SetValue($this->GetIDForIdent("DevicesDimmed"), $devicesDisplay);
+			$this->UpdateValue($this->GetIDForIdent("DevicesDimmed"), $devicesDisplay);
 		}
 		
 		switch ($this->ReadPropertyString("DimModeAggregation")) {
 			
 			case "MIN":
-				SetValue($this->GetIDForIdent("Intensity"), $dimMin);
+				$this->UpdateValue($this->GetIDForIdent("Intensity"), $dimMin);
 				break;
 			case "MAX":
-				SetValue($this->GetIDForIdent("Intensity"), $dimMax);
+				$this->UpdateValue($this->GetIDForIdent("Intensity"), $dimMax);
 				break;
 			case "AVG":
-				SetValue($this->GetIDForIdent("Intensity"), $dimAvg);
+				$this->UpdateValue($this->GetIDForIdent("Intensity"), $dimAvg);
 				break;
 			default:
 				$this->LogMessage("Dimming mode has an invalid Aggregation type","ERROR");
@@ -707,19 +715,19 @@ class DeviceGroup extends IPSModule {
 		
 		if ($this->ReadPropertyBoolean("ColorModeDisplay")) {
 			
-			SetValue($this->GetIDForIdent("DevicesColorSet"), $devicesDisplay);
+			$this->UpdateValue($this->GetIDForIdent("DevicesColorSet"), $devicesDisplay);
 		}
 		
 		switch ($this->ReadPropertyString("ColorModeAggregation")) {
 			
 			case "MIN":
-				SetValue($this->GetIDForIdent("Color"), $colorMin);
+				$this->UpdateValue($this->GetIDForIdent("Color"), $colorMin);
 				break;
 			case "MAX":
-				SetValue($this->GetIDForIdent("Color"), $colorMax);
+				$this->UpdateValue($this->GetIDForIdent("Color"), $colorMax);
 				break;
 			case "AVG":
-				SetValue($this->GetIDForIdent("Color"), $colorAvg);
+				$this->UpdateValue($this->GetIDForIdent("Color"), $colorAvg);
 				break;
 			default:
 				$this->LogMessage("Color mode has an invalid Aggregation type","ERROR");
