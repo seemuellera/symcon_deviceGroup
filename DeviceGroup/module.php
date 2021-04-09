@@ -509,7 +509,7 @@ class DeviceGroup extends IPSModule {
 			
 			if (! GetValue($currentDevice['VariableId']) ) {
 				
-				RequestAction($currentDevice['VariableId'], true);
+				$this->RequestActionWithBackOff($currentDevice['VariableId'], true);
 				$this->LogMessage("Switching on " . $currentDevice['Name'], "DEBUG");
 			}
 		}
@@ -529,7 +529,7 @@ class DeviceGroup extends IPSModule {
 			
 			if (GetValue($currentDevice['VariableId']) ) {
 				
-				RequestAction($currentDevice['VariableId'], false);
+				$this->RequestActionWithBackOff($currentDevice['VariableId'], false);
 				$this->LogMessage("Switching off " . $currentDevice['Name'], "DEBUG");
 			}
 		}
@@ -648,7 +648,7 @@ class DeviceGroup extends IPSModule {
 				$dimLevel = round($dimLevel * 2.54);
 			}
 			
-			RequestAction($currentDevice['VariableId'], $dimLevel);
+			$this->RequestActionWithBackOff($currentDevice['VariableId'], $dimLevel);
 		}
 	}
 	
@@ -746,7 +746,41 @@ class DeviceGroup extends IPSModule {
 		
 		foreach($allColorModeDevices as $currentDevice) {
 			
-			RequestAction($currentDevice['VariableId'], $color);
+			$this->RequestActionWithBackOff($currentDevice['VariableId'], $color);
 		}
+	}
+	
+	protected function RequestActionWithBackOff($variable, $value) {
+		
+		$retries = 4;
+		$baseWait = 100;
+		
+		for ($i = 0; $i <= $retries; $i++) {
+			
+			$wait = $baseWait * $i;
+			
+			if ($wait > 0) {
+				
+				$this->LogMessage("Waiting for $wait milliseconds, retry $i of $retries", "DEBUG");
+				IPS_Sleep($wait);
+			}
+			
+			$result = RequestAction($variable, $value);
+			
+			// Return success if executed successfully
+			if ($result) {
+				
+				return true;
+			}
+			else {
+				
+				$this->LogMessage("Switching Variable $variable to Value $value failed, but will be retried", "WARN");
+			}
+			
+		}
+		
+		// return false as switching was not possible after all these times
+		$this->LogMessage("Switching Variable $variable to Value $value failed after $retries retries. Aborting", "CRIT");
+		return false;
 	}
 }
