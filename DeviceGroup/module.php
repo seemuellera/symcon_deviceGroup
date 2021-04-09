@@ -355,7 +355,16 @@ class DeviceGroup extends IPSModule {
 
 	}
 	
+	// Version 1.0
 	protected function LogMessage($message, $severity = 'INFO') {
+		
+		$logMappings = Array();
+		// $logMappings['DEBUG'] 	= 10206; Deactivated the normal debug, because it is not active
+		$logMappings['DEBUG'] 	= 10201;
+		$logMappings['INFO']	= 10201;
+		$logMappings['NOTIFY']	= 10203;
+		$logMappings['WARN'] 	= 10204;
+		$logMappings['CRIT']	= 10205;
 		
 		if ( ($severity == 'DEBUG') && ($this->ReadPropertyBoolean('DebugOutput') == false )) {
 			
@@ -363,8 +372,7 @@ class DeviceGroup extends IPSModule {
 		}
 		
 		$messageComplete = $severity . " - " . $message;
-		
-		IPS_LogMessage($this->ReadPropertyString('Sender') . " - " . $this->InstanceID, $messageComplete);
+		parent::LogMessage($messageComplete, $logMappings[$severity]);
 	}
 
 	public function RefreshInformation() {
@@ -491,7 +499,7 @@ class DeviceGroup extends IPSModule {
 				}
 				break;
 			default:
-				$this->LogMessage("Switch mode has an invalid Aggregation type","ERROR");
+				$this->LogMessage("Switch mode has an invalid Aggregation type","CRIT");
 		}
 	}
 	
@@ -626,7 +634,7 @@ class DeviceGroup extends IPSModule {
 				$this->UpdateValue($this->GetIDForIdent("Intensity"), $dimAvg);
 				break;
 			default:
-				$this->LogMessage("Dimming mode has an invalid Aggregation type","ERROR");
+				$this->LogMessage("Dimming mode has an invalid Aggregation type","CRIT");
 		}
 	}
 	
@@ -730,7 +738,7 @@ class DeviceGroup extends IPSModule {
 				$this->UpdateValue($this->GetIDForIdent("Color"), $colorAvg);
 				break;
 			default:
-				$this->LogMessage("Color mode has an invalid Aggregation type","ERROR");
+				$this->LogMessage("Color mode has an invalid Aggregation type","CRIT");
 		}
 	}
 	
@@ -750,6 +758,7 @@ class DeviceGroup extends IPSModule {
 		}
 	}
 	
+	// Version 1.0
 	protected function RequestActionWithBackOff($variable, $value) {
 		
 		$retries = 4;
