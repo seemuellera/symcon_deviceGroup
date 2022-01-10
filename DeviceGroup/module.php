@@ -403,18 +403,18 @@ class DeviceGroup extends IPSModule {
 			case "Status":
 				if ($Value) {
 					
-					$this->SwitchOn();
+					$result = $this->SwitchOn();
 				}
 				else {
 					
-					$this->SwitchOff();
+					$result = $this->SwitchOff();
 				}
 				break;
 			case "Intensity":
-				$this->DimSet($Value);
+				$result = $this->DimSet($Value);
 				break;
 			case "Color":
-				$this->ColorSet($Value);
+				$result = $this->ColorSet($Value);
 				break;
 			default:
 				throw new Exception("Invalid Ident");
@@ -517,7 +517,7 @@ class DeviceGroup extends IPSModule {
 			
 			if (! GetValue($currentDevice['VariableId']) ) {
 				
-				$this->RequestActionWithBackOff($currentDevice['VariableId'], true);
+				$result = $this->RequestActionWithBackOff($currentDevice['VariableId'], true);
 				$this->LogMessage("Switching on " . $currentDevice['Name'], "DEBUG");
 			}
 		}
@@ -537,7 +537,7 @@ class DeviceGroup extends IPSModule {
 			
 			if (GetValue($currentDevice['VariableId']) ) {
 				
-				$this->RequestActionWithBackOff($currentDevice['VariableId'], false);
+				$result = $this->RequestActionWithBackOff($currentDevice['VariableId'], false);
 				$this->LogMessage("Switching off " . $currentDevice['Name'], "DEBUG");
 			}
 		}
@@ -656,7 +656,7 @@ class DeviceGroup extends IPSModule {
 				$dimLevel = round($dimLevel * 2.54);
 			}
 			
-			$this->RequestActionWithBackOff($currentDevice['VariableId'], $dimLevel);
+			$result = $this->RequestActionWithBackOff($currentDevice['VariableId'], $dimLevel);
 		}
 	}
 	
