@@ -23,7 +23,7 @@ class DeviceGroup extends IPSModule {
 		$this->RegisterPropertyInteger("RefreshInterval",0);
 		$this->RegisterPropertyBoolean("DebugOutput",false);
 		
-		$this->RegisterPropertyString("GroupConfigInFrontend", false);
+		$this->RegisterPropertyBoolean("GroupConfigInFrontend", false);
 		
 		$this->RegisterPropertyBoolean("SwitchMode",false);
 		$this->RegisterPropertyString("SwitchModeAggregation","ALLOFF");
