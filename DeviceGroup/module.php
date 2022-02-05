@@ -23,6 +23,8 @@ class DeviceGroup extends IPSModule {
 		$this->RegisterPropertyInteger("RefreshInterval",0);
 		$this->RegisterPropertyBoolean("DebugOutput",false);
 		
+		$this->RegisterPropertyString("GroupConfigInFrontend", false);
+		
 		$this->RegisterPropertyBoolean("SwitchMode",false);
 		$this->RegisterPropertyString("SwitchModeAggregation","ALLOFF");
 		$this->RegisterPropertyBoolean("SwitchModeDisplay",false);
@@ -37,6 +39,10 @@ class DeviceGroup extends IPSModule {
 		$this->RegisterPropertyString("ColorModeAggregation","MAX");
 		$this->RegisterPropertyBoolean("ColorModeDisplay",false);
 		$this->RegisterPropertyString("ColorModeDevices","");
+		
+		// Attributes
+		$this->RegisterAttributeInteger("CategoryOn", 0);
+		$this->RegisterAttributeInteger("CategoryOff", 0);
 
 		// Timer
 		$this->RegisterTimer("RefreshInformation", 0 , 'DEVGROUP_RefreshInformation($_IPS[\'TARGET\']);');
@@ -167,7 +173,18 @@ class DeviceGroup extends IPSModule {
 				$this->UnregisterVariable("DevicesColorSet");
 			}
 		}
+		
+		if ($this->ReadPropertyBoolean("GroupConfigInFrontend") ) {
 			
+			if ($this->ReadAttributeInteger("CategoryOn") == 0) {
+				
+				$categoryOnId = IPS_CreateCategory();
+				$this->WriteAttributeInteger("CategoryOn", $categoryOnId);
+				IPS_SetName($categoryOnId, "Devices included in Switch on");
+				IPS_SetParent($categoryOnId, $this->InstanceID);
+			}	
+		}
+	
 		// Diese Zeile nicht löschen
 		parent::ApplyChanges();
 	}
@@ -182,8 +199,16 @@ class DeviceGroup extends IPSModule {
         		);
 
 		// Add the Elements
-		$form['elements'][] = Array("type" => "NumberSpinner", "name" => "RefreshInterval", "caption" => "Refresh Interval");
-		$form['elements'][] = Array("type" => "CheckBox", "name" => "DebugOutput", "caption" => "Enable Debug Output");
+		$form['elements'][] = Array(
+								"type" => "ExpansionPanel", 
+								"caption" => "General Settings",
+								"expanded" => true,
+								"items" => Array(
+										Array("type" => "NumberSpinner", "name" => "RefreshInterval", "caption" => "Refresh Interval"),
+										Array("type" => "CheckBox", "name" => "DebugOutput", "caption" => "Enable Debug Output"),
+										Array("type" => "CheckBox", "name" => "GroupConfigInFrontend", "caption" => "Allow Group Management in Frontend")
+									)
+								);
 		
 		$form['elements'][] = Array("type" => "Label", "name" => "SwitchModeHeading", "caption" => "Switch mode configuration");
 		$form['elements'][] = Array("type" => "CheckBox", "name" => "SwitchMode", "caption" => "Enable Switch Mode");
