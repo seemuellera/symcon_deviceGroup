@@ -195,6 +195,28 @@ class DeviceGroup extends IPSModule {
 				}
 			}
 		}
+		
+		if ($this->ReadPropertyBoolean("GroupConfigInFrontend") ) {
+			
+			if ($this->ReadAttributeInteger("CategoryOff") == 0) {
+				
+				$categoryOffId = IPS_CreateCategory();
+				$this->WriteAttributeInteger("CategoryOff", $categoryOffId);
+				IPS_SetName($categoryOffId, "Devices included in Switch off");
+				IPS_SetParent($categoryOffId, $this->InstanceID);
+			}	
+		}
+		else {
+			
+			if ($this->ReadAttributeInteger("CategoryOff") != 0) {
+				
+				$categoryOffDeleteResult = IPS_DeleteCategory($this->ReadAttributeInteger("CategoryOff"));
+				if (! $categoryOffDeleteResult) {
+					
+					$this->LogMessage("Could not delete Category off", "CRIT");
+				}
+			}
+		}
 	
 		// Diese Zeile nicht löschen
 		parent::ApplyChanges();
