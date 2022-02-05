@@ -184,6 +184,17 @@ class DeviceGroup extends IPSModule {
 				IPS_SetParent($categoryOnId, $this->InstanceID);
 			}	
 		}
+		else {
+			
+			if ($this->ReadAttributeInteger("CategoryOn") != 0) {
+				
+				$categoryOnDeleteResult = IPS_DeleteCategory($this->ReadAttributeInteger("CategoryOn"));
+				if (! $categoryOnDeleteResult) {
+					
+					$this->LogMessage("Could not delete Category on", "CRIT");
+				}
+			}
+		}
 	
 		// Diese Zeile nicht löschen
 		parent::ApplyChanges();
