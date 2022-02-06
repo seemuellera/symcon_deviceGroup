@@ -238,7 +238,7 @@ class DeviceGroup extends IPSModule {
 		
 		foreach ($childItems as $currentChild) {
 			
-			IPS_DeleteVariabe($currentChild);
+			IPS_DeleteVariable($currentChild);
 		}
 	}
 
