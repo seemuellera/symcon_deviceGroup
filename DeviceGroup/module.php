@@ -195,6 +195,7 @@ class DeviceGroup extends IPSModule {
 				}
 				else {
 					
+					$this->EmptyCatagory($this->ReadAttributeInteger("CategoryOn"));
 					$this->WriteAttributeInteger("CategoryOn", 0);
 				}
 			}
@@ -221,6 +222,7 @@ class DeviceGroup extends IPSModule {
 				}
 				else {
 					
+					$this->EmptyCategory($this->ReadAttributeInteger("CategoryOff"));
 					$this->WriteAttributeInteger("CategoryOff", 0);
 				}
 			}
@@ -228,6 +230,16 @@ class DeviceGroup extends IPSModule {
 	
 		// Diese Zeile nicht löschen
 		parent::ApplyChanges();
+	}
+	
+	protected function EmptyCategory($categoryId) {
+		
+		$childItems = IPS_GetChildrenIDs($categoryId);
+		
+		foreach ($childItems as $currentChild) {
+			
+			IPS_DeleteVariabe($currentChild);
+		}
 	}
 
 
