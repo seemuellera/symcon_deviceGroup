@@ -188,7 +188,7 @@ class DeviceGroup extends IPSModule {
 			
 			if ($this->ReadAttributeInteger("CategoryOn") != 0) {
 				
-				$this->EmptyCatagory($this->ReadAttributeInteger("CategoryOn"));
+				$this->EmptyCategory($this->ReadAttributeInteger("CategoryOn"));
 				$categoryOnDeleteResult = IPS_DeleteCategory($this->ReadAttributeInteger("CategoryOn"));
 				if (! $categoryOnDeleteResult) {
 					
