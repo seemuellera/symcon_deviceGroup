@@ -176,7 +176,7 @@ class DeviceGroup extends IPSModule {
 		
 		if ($this->ReadPropertyBoolean("GroupConfigInFrontend") ) {
 			
-			if ($this->ReadAttributeInteger("CategoryOn") == 0) {
+			if ( ($this->ReadAttributeInteger("CategoryOn") == 0) || (! IPS_ObjectExists($this->ReadAttributeInteger("CategoryOn")) ) ) {
 				
 				$categoryOnId = IPS_CreateCategory();
 				$this->WriteAttributeInteger("CategoryOn", $categoryOnId);
@@ -193,12 +193,16 @@ class DeviceGroup extends IPSModule {
 					
 					$this->LogMessage("Could not delete Category on", "CRIT");
 				}
+				else {
+					
+					$this->WriteAttributeInteger("CategoryOn", 0);
+				}
 			}
 		}
 		
 		if ($this->ReadPropertyBoolean("GroupConfigInFrontend") ) {
 			
-			if ($this->ReadAttributeInteger("CategoryOff") == 0) {
+			if ( ($this->ReadAttributeInteger("CategoryOff") == 0) || (! IPS_ObjectExists($this->ReadAttributeInteger("CategoryOff")) ) ) {
 				
 				$categoryOffId = IPS_CreateCategory();
 				$this->WriteAttributeInteger("CategoryOff", $categoryOffId);
@@ -214,6 +218,10 @@ class DeviceGroup extends IPSModule {
 				if (! $categoryOffDeleteResult) {
 					
 					$this->LogMessage("Could not delete Category off", "CRIT");
+				}
+				else {
+					
+					$this->WriteAttributeInteger("CategoryOff", 0);
 				}
 			}
 		}
