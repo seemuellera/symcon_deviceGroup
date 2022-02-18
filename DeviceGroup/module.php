@@ -72,6 +72,7 @@ class DeviceGroup extends IPSModule {
 			foreach ($allSwitchModeDevices as $currentDevice) {
 				
 				$this->RegisterMessage($currentDevice['VariableId'], VM_UPDATE);
+				$this->RegisterReference($currentDevice['VariableId']);
 			}
 			
 			if ($this->ReadPropertyBoolean("SwitchModeDisplay")) {
@@ -110,6 +111,7 @@ class DeviceGroup extends IPSModule {
 			foreach ($allDimModeDevices as $currentDevice) {
 				
 				$this->RegisterMessage($currentDevice['VariableId'], VM_UPDATE);
+				$this->RegisterReference($currentDevice['VariableId']);
 			}
 			
 			if ($this->ReadPropertyBoolean("DimModeDisplay")) {
@@ -148,6 +150,7 @@ class DeviceGroup extends IPSModule {
 			foreach ($allColorModeDevices as $currentDevice) {
 				
 				$this->RegisterMessage($currentDevice['VariableId'], VM_UPDATE);
+				$this->RegisterReference($currentDevice['VariableId']);
 			}
 			
 			if ($this->ReadPropertyBoolean("ColorModeDisplay")) {
@@ -240,6 +243,13 @@ class DeviceGroup extends IPSModule {
 			
 			IPS_DeleteVariable($currentChild);
 		}
+	}
+	
+	protected function FillCategory($categoryId) {
+		
+		$allDevices = GetSwitchModeDevices();
+		
+		foreach 
 	}
 
 
