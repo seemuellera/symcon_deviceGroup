@@ -248,8 +248,7 @@ class DeviceGroup extends IPSModule {
 	protected function FillCategory($categoryId) {
 		
 		$allDevices = GetSwitchModeDevices();
-		
-		foreach 
+		 
 	}
 
 
