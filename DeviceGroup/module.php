@@ -621,7 +621,7 @@ class DeviceGroup extends IPSModule {
 			
 			if (! GetValue($currentDevice['VariableId']) ) {
 				
-				$result = $this->RequestActionWithBackOff($currentDevice['VariableId'], true);
+				$result = RequestAction($currentDevice['VariableId'], true);
 				$this->LogMessage("Switching on " . $currentDevice['Name'], "DEBUG");
 			}
 		}
@@ -641,7 +641,7 @@ class DeviceGroup extends IPSModule {
 			
 			if (GetValue($currentDevice['VariableId']) ) {
 				
-				$result = $this->RequestActionWithBackOff($currentDevice['VariableId'], false);
+				$result = RequestAction($currentDevice['VariableId'], false);
 				$this->LogMessage("Switching off " . $currentDevice['Name'], "DEBUG");
 			}
 		}
@@ -760,7 +760,7 @@ class DeviceGroup extends IPSModule {
 				$dimLevel = round($dimLevel * 2.54);
 			}
 			
-			$result = $this->RequestActionWithBackOff($currentDevice['VariableId'], $dimLevel);
+			$result = RequestAction($currentDevice['VariableId'], $dimLevel);
 		}
 	}
 	
@@ -858,7 +858,7 @@ class DeviceGroup extends IPSModule {
 		
 		foreach($allColorModeDevices as $currentDevice) {
 			
-			$this->RequestActionWithBackOff($currentDevice['VariableId'], $color);
+			RequestAction($currentDevice['VariableId'], $color);
 		}
 	}
 	
